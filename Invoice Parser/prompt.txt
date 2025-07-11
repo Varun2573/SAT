@@ -1,0 +1,42 @@
+### Input Invoice Data (Text):
+{invoiceDATA}
+
+### Context:
+- The provided invoice data is in text format, extracted from a PDF, DOCX, or TXT file.
+- The text content represents the raw information contained within the invoice.
+- The goal is to parse and structure this text data into a well-organized JSON format.
+- No image processing or OCR is required, as the data is already in text form.
+
+### Objective:
+Extract and structure all relevant details from the provided invoice text into a dynamic JSON format. Ensure accuracy, completeness, and support for multilingual invoices.
+
+### Requirements:
+1. **Text Data Handling:**
+   - Process the provided text data directly.
+   - No image decoding or OCR is necessary.
+   - Handle potential variations in text formatting and structure.
+2. **Extract Key Invoice Sections:**
+   - Seller Details: Company name, address, tax IDs (e.g., GSTIN, PAN, VAT).
+   - Buyer Details: Customer name, address, tax IDs.
+   - Invoice Metadata: Invoice number, date, payment terms, due date.
+   - Transport Information: Transporter name, vehicle number, tracking details.
+   - Payment Details: Bank name, account number, SWIFT code, IBAN, UPI ID.
+   - Additional Metadata: Any extra details present in the invoice.
+3. **Tabular Data Extraction:**
+   - Extract all itemized rows, ensuring dynamic column headers based on the invoice format.
+   - Include every row, even if some values are missing or zero.
+4. **Missing Sections:**
+   - If a section is unavailable, return "Not Available" instead of skipping it.
+5. **Inference:**
+   - Infer missing values from context when possible.
+   - Extract the total amount directly without recalculation.
+6. **Multi-Language Support:**
+   - Process invoices in any language and generate the output in the same language.
+7. **Dynamic JSON Structure:**
+   - Dynamically create fields for any additional details present in the invoice.
+   - Avoid using a fixed/predefined JSON format.
+8. **JSON Formatting:**
+   - Ensure the output is structured, formatted correctly, and error-free for seamless parsing.
+
+### Expected Output:
+A fully structured JSON response containing all extracted details from the invoice text, formatted dynamically, and supporting multiple languages.

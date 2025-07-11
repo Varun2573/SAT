@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>File Preview and JSON Output</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --secondary-dark: #560bad;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #38b000;
+            --warning: #f48c06;
+            --error: #d90429;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 32px;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 30px;
+        }
+
+        .panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .panel h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+
+        .panel h2 i {
+            margin-right: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .panel h3 {
+            font-size: 18px;
+            color: var(--secondary);
+            margin: 20px 0 15px 0;
+        }
+
+        /* Upload Form Styles */
+        .file-input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 2px dashed #cfd4da;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-direction: column;
+        }
+
+        .file-input-label:hover {
+            background-color: #e9ecef;
+            border-color: var(--primary);
+        }
+
+        .file-input-label i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .file-input-label span {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        /* File List Styles */
+        .filename-list {
+            list-style-type: none;
+            margin: 15px 0;
+        }
+
+        .filename-list li {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .filename-list li:hover {
+            background-color: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .filename-list li i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        /* Preview Styles */
+        .file-item {
+            margin-bottom: 25px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .file-header {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-header i {
+            margin-right: 10px;
+        }
+
+        .file-content {
+            padding: 0;
+        }
+
+        iframe,
+        img {
+            width: 100%;
+            height: 300px;
+            border: none;
+            display: block;
+            background-color: white;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+            height: 300px;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #e9ecef;
+            color: #495057;
+        }
+
+        /* Status Output Styles */
+        #status-output {
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Loading Animation */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loading-text {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Upload progress bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+            height: 10px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 30px;
+            transition: width 0.3s ease;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Error message */
+        .error-message {
+            color: var(--error);
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* No files message */
+        .no-files {
+            text-align: center;
+            padding: 40px 0;
+            color: #6c757d;
+        }
+
+        .no-files i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Preview not available message */
+        .preview-not-available {
+            text-align: center;
+            padding: 40px 0;
+            color: #6c757d;
+        }
+
+        .preview-not-available i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+
+            .panel {
+                grid-column: 1;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="page-title">Document Processing Platform</h1>
+    <div class="container">
+        <!-- Upload Panel -->
+        <div class="panel upload-panel">
+            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Files</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <div class="file-input-container">
+                    <label class="file-input-label" for="file">
+                        <i class="fas fa-file-upload"></i>
+                        <span>Drag & drop files here or click to browse</span>
+                    </label>
+                    <input type="file" id="file" name="files" multiple required>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <p class="error-message" id="upload-error"></p>
+                <div class="button-container">
+                    <button type="submit" id="upload-btn"><i class="fas fa-upload"></i> Upload Files</button>
+                    <button type="button" onclick="checkStatus()" id="status-btn"><i class="fas fa-sync-alt"></i> Check
+                        Status</button>
+                </div>
+            </form>
+
+            <!-- Uploaded Files Section -->
+            <div class="uploaded-files-section">
+                <h3><i class="fas fa-folder-open"></i> Uploaded Files</h3>
+                <ul id="uploaded-filenames" class="filename-list">
+                    <li class="no-files"><i class="fas fa-folder-open"></i><br>No files uploaded yet</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Status Panel -->
+        <div class="panel status-panel">
+            <h2><i class="fas fa-tasks"></i> Processing Status</h2>
+            <pre id="status-output">Status will appear here...</pre>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="panel preview-panel">
+            <h2><i class="fas fa-eye"></i> File Preview</h2>
+            <div id="file-preview" class="no-files">
+                <i class="fas fa-file-image"></i>
+                <p>No files to preview</p>
+            </div>
+        </div>
+
+        <!-- JSON Output Panel -->
+        <div class="panel json-panel">
+            <h2><i class="fas fa-code"></i> JSON Output</h2>
+            <div id="json-output-container">
+                <pre id="json-output">Waiting for file processing...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedTasks = [];
+        let isProcessing = false;
+
+        const loadingSpinner = `
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <div class="loading-text">Processing files...</div>
+            </div>
+        `;
+
+        // File input visual feedback
+        $("#file").on("change", function () {
+            const fileCount = this.files.length;
+            if (fileCount > 0) {
+                $(".file-input-label span").text(`${fileCount} file${fileCount > 1 ? 's' : ''} selected`);
+                $(".file-input-label").css("border-color", "var(--primary)");
+            } else {
+                $(".file-input-label span").text("Drag & drop files here or click to browse");
+                $(".file-input-label").css("border-color", "#cfd4da");
+            }
+        });
+
+        $("#upload-form").on("submit", function (e) {
+            e.preventDefault();
+
+            const files = $("#file")[0].files;
+            if (!files.length) {
+                $("#upload-error").text("Please select at least one file.").show();
+                setTimeout(() => $("#upload-error").fadeOut(), 3000);
+                return;
+            }
+
+            if (isProcessing) {
+                $("#upload-error").text("Please wait until the current files are processed.").show();
+                setTimeout(() => $("#upload-error").fadeOut(), 3000);
+                return;
+            }
+
+            isProcessing = true;
+            uploadedTasks = [];
+            $("#status-output").text("");
+            $("#file-preview").html(loadingSpinner);
+            $("#json-output-container").html("<pre id='json-output'>Processing your files...</pre>");
+            $("#upload-error").hide();
+
+            // Show progress bar and simulate upload progress
+            $(".progress-container").show();
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress > 90) clearInterval(progressInterval);
+                $(".progress-bar").css("width", `${Math.min(progress, 90)}%`);
+            }, 200);
+
+            // Clear the filenames list
+            $("#uploaded-filenames").html("");
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append("files", files[i]);
+            }
+
+            $("#upload-btn").prop("disabled", true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+            $("#file").prop("disabled", true);
+
+            $.ajax({
+                url: "/upload",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    clearInterval(progressInterval);
+                    $(".progress-bar").css("width", "100%");
+
+                    setTimeout(() => {
+                        $(".progress-container").fadeOut(300);
+                        $(".progress-bar").css("width", "0%");
+                    }, 500);
+
+                    if (response.error) {
+                        $("#upload-error").text(response.error).show();
+                        resetUploadState();
+                        $("#file-preview").html(`
+                            <div class="no-files">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p>Error uploading files</p>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    uploadedTasks = response.tasks || [];
+
+                    // Update the filenames list
+                    let filenamesList = "";
+                    uploadedTasks.forEach((task, index) => {
+                        const fileIcon = getFileIcon(task.filename);
+                        filenamesList += `<li><i class="${fileIcon}"></i> ${task.filename} <span class="status-badge status-pending">Pending</span></li>`;
+                    });
+                    $("#uploaded-filenames").html(filenamesList);
+
+                    // Create file previews
+                    createFilePreviews(uploadedTasks);
+
+                    // Create individual JSON output sections
+                    createJsonOutputSections(uploadedTasks);
+
+                    setTimeout(() => resetUploadState(), 1000);
+
+                    // Automatically check status after 3 seconds
+                    setTimeout(() => checkStatus(), 3000);
+                },
+                error: function (xhr, status, error) {
+                    clearInterval(progressInterval);
+                    $(".progress-container").hide();
+                    $(".progress-bar").css("width", "0%");
+
+                    $("#upload-error").text(`Error: ${xhr.status} - ${error}`).show();
+                    $("#file-preview").html(`
+                        <div class="no-files">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Failed to upload files</p>
+                        </div>
+                    `);
+
+                    resetUploadState();
+                    $("#uploaded-filenames").html(`
+                        <li class="no-files">
+                            <i class="fas fa-folder-open"></i><br>
+                            No files uploaded
+                        </li>
+                    `);
+                }
+            });
+        });
+
+        function createFilePreviews(tasks) {
+            if (tasks.length === 0) {
+                $("#file-preview").html(`
+                    <div class="no-files">
+                        <i class="fas fa-file-image"></i>
+                        <p>No files to preview</p>
+                    </div>
+                `);
+                return;
+            }
+
+            let previews = "";
+
+            tasks.forEach((task, index) => {
+                const fileName = task.filename;
+                const previewUrl = `/preview/${fileName}`;
+                const fileIcon = getFileIcon(fileName);
+
+                previews += `<div class="file-item">`;
+                previews += `<div class="file-header"><i class="${fileIcon}"></i> ${fileName}</div>`;
+                previews += `<div class="file-content">`;
+
+                if (fileName.toLowerCase().endsWith(".pdf")) {
+                    // For PDF files
+                    previews += `<iframe src="${previewUrl}" title="PDF Preview of ${fileName}"></iframe>`;
+                } else if (/\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileName)) {
+                    // For image files
+                    previews += `<img src="${previewUrl}" alt="${fileName}" />`;
+                } else {
+                    // For other file types
+                    previews += `
+                        <div class="preview-not-available">
+                            <i class="${fileIcon}"></i>
+                            <p>Preview not available for this file type</p>
+                        </div>
+                    `;
+                }
+
+                previews += `</div></div>`;
+            });
+
+            $("#file-preview").html(previews);
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+
+            if (/pdf/.test(ext)) return "fas fa-file-pdf";
+            if (/doc|docx|odt|rtf/.test(ext)) return "fas fa-file-word";
+            if (/xls|xlsx|ods/.test(ext)) return "fas fa-file-excel";
+            if (/ppt|pptx|odp/.test(ext)) return "fas fa-file-powerpoint";
+            if (/zip|rar|tar|gz/.test(ext)) return "fas fa-file-archive";
+            if (/jpg|jpeg|png|gif|bmp|svg|webp/.test(ext)) return "fas fa-file-image";
+            if (/mp3|wav|ogg|flac/.test(ext)) return "fas fa-file-audio";
+            if (/mp4|avi|mov|wmv|flv|webm/.test(ext)) return "fas fa-file-video";
+            if (/txt|md/.test(ext)) return "fas fa-file-alt";
+            if (/html|htm|xml/.test(ext)) return "fas fa-file-code";
+            if (/js|css|py|java|c|cpp|php|rb/.test(ext)) return "fas fa-file-code";
+
+            return "fas fa-file";
+        }
+
+        function createJsonOutputSections(tasks) {
+            if (tasks.length === 0) {
+                $("#json-output-container").html(`
+                    <div class="no-files">
+                        <i class="fas fa-code"></i>
+                        <p>No JSON output available</p>
+                    </div>
+                `);
+                return;
+            }
+
+            let outputs = "";
+            tasks.forEach((task, index) => {
+                const fileIcon = getFileIcon(task.filename);
+
+                outputs += `<div class="file-item">`;
+                outputs += `<div class="file-header"><i class="${fileIcon}"></i> JSON for ${task.filename}</div>`;
+                outputs += `<pre id="json-output-${task.task_id}">Waiting for processing to complete...</pre>`;
+                outputs += `</div>`;
+            });
+
+            $("#json-output-container").html(outputs);
+        }
+
+        function checkStatus() {
+            if (!uploadedTasks.length) {
+                $("#upload-error").text("No uploaded tasks to check. Please upload files first.").show();
+                setTimeout(() => $("#upload-error").fadeOut(), 3000);
+                return;
+            }
+
+            $("#status-btn").prop("disabled", true).html('<i class="fas fa-spinner fa-spin"></i> Checking...');
+            $("#status-output").text("Fetching current status...");
+
+            let statusResults = [];
+            let resultPromises = [];
+
+            uploadedTasks.forEach(task => {
+                // Update UI to show checking status
+                $(`#json-output-${task.task_id}`).html(`
+                    <div class="loading-container" style="height: 250px;">
+                        <div class="spinner"></div>
+                        <div class="loading-text">Checking status...</div>
+                    </div>
+                `);
+
+                const statusPromise = $.ajax({
+                    url: task.status_check,
+                    type: "GET"
+                }).then(response => {
+                    const statusInfo = {
+                        filename: task.filename,
+                        task_id: task.task_id,
+                        status: response.status
+                    };
+
+                    statusResults.push(statusInfo);
+
+                    // Update status badge in filename list
+                    const statusClass = getStatusClass(response.status);
+                    $(`#uploaded-filenames li:contains('${task.filename}')`).find('.status-badge')
+                        .attr('class', `status-badge ${statusClass}`)
+                        .text(response.status);
+
+                    if (response.status.toLowerCase() === "completed") {
+                        return $.ajax({
+                            url: `/result/${task.task_id}`,
+                            type: "GET"
+                        }).then(jsonResult => {
+                            return {
+                                filename: task.filename,
+                                task_id: task.task_id,
+                                result: jsonResult
+                            };
+                        });
+                    } else {
+                        // Update individual JSON output section with status
+                        $(`#json-output-${task.task_id}`).html(`
+                            <div style="padding: 15px;">
+                                <div class="status-badge ${statusClass}" style="margin-bottom: 15px;">${response.status}</div>
+                                <p>The file is currently being processed. Please check again later.</p>
+                            </div>
+                        `);
+                        return null;
+                    }
+                }).catch(() => {
+                    statusResults.push({
+                        filename: task.filename,
+                        task_id: task.task_id,
+                        status: "Failed to fetch"
+                    });
+
+                    // Update status badge in filename list
+                    $(`#uploaded-filenames li:contains('${task.filename}')`).find('.status-badge')
+                        .attr('class', 'status-badge status-error')
+                        .text('Error');
+
+                    // Update individual JSON output section with error
+                    $(`#json-output-${task.task_id}`).html(`
+                        <div style="padding: 15px; color: var(--error);">
+                            <i class="fas fa-exclamation-circle"></i> Failed to fetch status
+                        </div>
+                    `);
+                    return null;
+                });
+
+                resultPromises.push(statusPromise);
+            });
+
+            Promise.all(resultPromises).then(results => {
+                const completedJsons = results.filter(r => r !== null);
+                showFinalOutputs(statusResults, completedJsons);
+                $("#status-btn").prop("disabled", false).html('<i class="fas fa-sync-alt"></i> Check Status');
+            });
+        }
+
+        function getStatusClass(status) {
+            status = status.toLowerCase();
+            if (status === "completed") return "status-completed";
+            if (status === "processing") return "status-processing";
+            if (status === "pending") return "status-pending";
+            return "status-error";
+        }
+
+        function showFinalOutputs(statusList, jsonList) {
+            const formattedStatus = JSON.stringify(statusList, null, 2);
+            $("#status-output").text(formattedStatus);
+
+            if (!jsonList.length) {
+                return;
+            }
+
+            jsonList.forEach(entry => {
+                const formattedJson = JSON.stringify(entry.result, null, 2);
+                $(`#json-output-${entry.task_id}`).text(formattedJson);
+
+                // Update status badge
+                $(`#uploaded-filenames li:contains('${entry.filename}')`).find('.status-badge')
+                    .attr('class', 'status-badge status-completed')
+                    .text('Completed');
+            });
+        }
+
+        function resetUploadState() {
+            isProcessing = false;
+            $("#file").val("").prop("disabled", false);
+            $(".file-input-label span").text("Drag & drop files here or click to browse");
+            $(".file-input-label").css("border-color", "#cfd4da");
+            $("#upload-btn").prop("disabled", false).html('<i class="fas fa-upload"></i> Upload Files');
+        }
+
+        // Add drag and drop functionality
+        const dropArea = document.querySelector('.file-input-label');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.style.backgroundColor = '#e3f2fd';
+            dropArea.style.borderColor = 'var(--primary)';
+        }
+
+        function unhighlight() {
+            dropArea.style.backgroundColor = '#f8f9fa';
+            dropArea.style.borderColor = '#cfd4da';
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            document.getElementById('file').files = files;
+
+            // Trigger change event
+            const event = new Event('change');
+            document.getElementById('file').dispatchEvent(event);
+        }
+    </script>
+</body>
+
+</html>

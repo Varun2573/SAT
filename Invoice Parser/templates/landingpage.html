@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DocuFlow - Smart Document Processing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+<style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --primary-light: #5b73f0;
+            --secondary: #7209b7;
+            --secondary-dark: #560bad;
+            --secondary-light: #8b2bc4;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #38b000;
+            --warning: #f48c06;
+            --error: #d90429;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glow: 0 0 40px rgba(67, 97, 238, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            position: relative;
+        }
+
+        /* Animated Background Elements */
+        .bg-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite linear;
+        }
+
+        .shape:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 40%;
+            left: 70%;
+            animation-delay: -10s;
+        }
+
+        .shape:nth-child(4) {
+            width: 120px;
+            height: 120px;
+            top: 80%;
+            left: 20%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        /* Left Panel - Hero Section */
+        .hero-panel {
+            flex: 1;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .logo i {
+            font-size: 40px;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 15px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content {
+            animation: slideInLeft 1s ease-out 0.2s both;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .features-list li {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            animation: fadeInUp 0.6s ease-out calc(0.4s + var(--delay, 0s)) both;
+        }
+
+        .features-list li i {
+            color: #4ade80;
+            margin-right: 15px;
+            font-size: 18px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #4ade80, #22c55e);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.4);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease-out 0.8s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(74, 222, 128, 0.5);
+        }
+
+        .cta-button i {
+            margin-left: 10px;
+        }
+
+        /* Right Panel - Auth Section */
+        .auth-panel {
+            flex: 0 0 450px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 40px;
+            position: relative;
+            z-index: 2;
+            animation: slideInRight 1s ease-out;
+        }
+
+        .auth-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .auth-toggle button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 500;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-toggle button.active {
+            color: white;
+        }
+
+        .auth-toggle .slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 50%;
+            bottom: 4px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 50px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .auth-toggle .slider.signup {
+            left: 50%;
+            right: 4px;
+        }
+
+        .auth-form {
+            opacity: 1;
+            transition: var(--transition);
+        }
+
+        .auth-form.hidden {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            margin-top: 12px;
+        }
+
+        .password-toggle {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(67, 97, 238, 0.3);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjU2IDEyLjI1QzIyLjU2IDExLjQ3IDIyLjQ5IDEwLjcyIDIyLjM2IDEwSDE2djQuMjZoMy42OWMtLjE3IDEuNTItLjc5IDIuODEtMS42OSAzLjY3djMuMDVoMi43NEMyMS4zMyAxOS4zNCAyMi41NiAxNi4wMyAyMi41NiAxMi4yNVoiIGZpbGw9IiM0Mjg1RjQiLz4KPHBhdGggZD0iTTEyIDIzQzE1LjI0IDIzIDE3Ljk1IDIxLjkyIDIwLjAzIDE5Ljk5TDE3LjI5IDE2Ljk0QzE2LjUgMTcuNDMgMTUuNSAxNy43MyAxNS4wMiAxNy43M0MxMi42MyAxNy43MyAxMC42MSAyMS43OSA5Ljc1IDIyLjc5SDYuODdDNy4xNSAyMi43OSA3LjQxIDIyLjY2IDcuNjYgMjIuNTFDOC41NyAyMS43OSAxMC42MSAxNy43MyAxMiAxNy43MyIgZmlsbD0iIzM0QTg1MyIvPgo8cGF0aCBkPSJNNi44NyAyMi43OUM2Ljg3IDIyLjc5IDcuMTUgMjIuNzkgNy42NiAyMi41MUM4LjU3IDIxLjc5IDEwLjYxIDE3LjczIDEyIDIzSDE2VjEwSDEwVjE4LjQ0QzkuNzMgMTguNTYgOS40NiAxOC42MyA5LjE5IDE4LjYzQzguODYgMTguNjMgOC41NCAxOC41NiA4LjIzIDE4LjQ0VjIzSDZWMTBIMlYxOC40NEMxLjc3IDE4LjU2IDEuNTQgMTguNjMgMS4zMSAxOC42M0MxLjA4IDE4LjYzIDAuODYgMTguNTYgMC42NCAxOC40NFYyM0gtM1YxMEgtN1YxOC40NEMtNy4yMyAxOC41NiAtNy40NiAxOC42MyAtNy42OSAxOC42M0MtNy45MiAxOC42MyAtOC4xNCAxOC41NiAtOC4zNiAxOC40NFYyM0gtMTFWMTBILTE1VjE4LjQ0Qy0xNS4yMyAxOC41NiAtMTUuNDYgMTguNjMgLTE1LjY5IDE4LjYzQy0xNS45MiAxOC42MyAtMTYuMTQgMTguNTYgLTE2LjM2IDE4LjQ0VjIzSC0xOVYxMEgtMjNWMTguNDRDLTIzLjIzIDE4LjU2IC0yMy40NiAxOC42MyAtMjMuNjkgMTguNjNDLTIzLjkyIDE4LjYzIC0yNC4xNCAxOC41NiAtMjQuMzYgMTguNDRWMjNIMTJaIiBmaWxsPSIjRkJCQzA0Ii8+CjxwYXRoIGQ9Ik0xMiAyM0MxMiAyMyA5LjczIDE4LjU2IDkuMTkgMTguNjNDOC44NiAxOC42MyA4LjU0IDE4LjU2IDguMjMgMTguNDRWMjNINlYxMEgxMlYyM1oiIGZpbGw9IiNFQTQzMzUiLz4KPHN0ZWVsIHN0eWxlPSJmaWxsOiAjNDI4NUY0OyIgZD0iTTEyIDEwVjIzSDE2VjEwSDEyWiIvPgo8L3N2Zz4K') no-repeat center;
+            background-size: contain;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error Message Styling */
+        .error-message {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+            text-align: left;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            margin-top: 5px;
+        }
+
+        .strength-bar {
+            height: 3px;
+            background: #e0e0e0;
+            margin: 5px 0;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .strength-bar::after {
+            content: '';
+            display: block;
+            height: 100%;
+            width: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .hero-panel {
+                padding: 40px 30px;
+                min-height: 60vh;
+            }
+
+            .auth-panel {
+                flex: none;
+                padding: 40px 30px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .hero-panel,
+            .auth-panel {
+                padding: 30px 20px;
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+            .auth-panel {
+                background: rgba(255, 255, 255, 0.98);
+            }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--success);
+            margin: 0 auto 20px;
+            position: relative;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .success-checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float-random 15s infinite linear;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            font-size: 30px;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 30%;
+            right: 20%;
+            font-size: 25px;
+            animation-delay: -3s;
+        }
+
+        .floating-element:nth-child(3) {
+            bottom: 20%;
+            left: 25%;
+            font-size: 35px;
+            animation-delay: -6s;
+        }
+
+        .floating-element:nth-child(4) {
+            bottom: 40%;
+            right: 15%;
+            font-size: 28px;
+            animation-delay: -9s;
+        }
+
+        @keyframes float-random {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-10px) rotate(90deg);
+            }
+
+            50% {
+                transform: translateY(-5px) rotate(180deg);
+            }
+
+            75% {
+                transform: translateY(-15px) rotate(270deg);
+            }
+        }
+    </style>
+    </head>
+<body>
+  <div class="container">
+    <!-- Hero Panel (left side) -->
+    <div class="hero-panel">
+      <div class="logo">
+        <i class="fas fa-file-invoice"></i>
+        <h1>DocuFlow</h1>
+      </div>
+      <div class="hero-content">
+        <h1 class="hero-title">Transform Your Documents with AI</h1>
+        <p class="hero-subtitle">Upload, process, and extract insights securely with AI.</p>
+        <ul class="features-list">
+          <li><i class="fas fa-magic"></i> Smart AI-powered analysis</li>
+          <li><i class="fas fa-shield-alt"></i> Enterprise-grade security</li>
+          <li><i class="fas fa-bolt"></i> Lightning-fast processing</li>
+          <li><i class="fas fa-globe"></i> Support for 100+ formats</li>
+        </ul>
+        <a href="#get-started" class="cta-button">Start Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <!-- Auth Panel (right side) -->
+    <div class="auth-panel">
+      <div class="auth-toggle">
+        <button class="login-tab active" onclick="switchTab('login')">Sign In</button>
+        <button class="signup-tab" onclick="switchTab('signup')">Sign Up</button>
+        <div class="slider" id="slider"></div>
+      </div>
+
+      <!-- Login Form -->
+      <form class="auth-form" id="loginForm" method="POST" action="/login">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" name="email" required />
+          <i class="fas fa-envelope"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" name="password" required />
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword', this)"></i>
+        </div>
+
+        <button type="submit" class="auth-button">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form class="auth-form hidden" id="signupForm" method="POST" action="/register">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" name="name" required placeholder="John Doe" />
+          <i class="fas fa-user"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" name="email" required placeholder="your@email.com" />
+          <i class="fas fa-envelope"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" name="password" required placeholder="At least 8 characters" />
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('signupPassword', this)"></i>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password" />
+          <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="termsAgreement" name="terms" required />
+          <label for="termsAgreement">
+            I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+
+        <button type="submit" class="auth-button">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      const loginTab = document.querySelector('.login-tab');
+      const signupTab = document.querySelector('.signup-tab');
+      const slider = document.getElementById('slider');
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+        slider.classList.remove('signup');
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+      } else {
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+        slider.classList.add('signup');
+        signupForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+      }
+    }
+
+    function togglePassword(inputId, icon) {
+      const input = document.getElementById(inputId);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    }
+  </script>
+</body>
+</html>

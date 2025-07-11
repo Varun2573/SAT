@@ -1,0 +1,10 @@
+Flask
+python-dotenv
+celery
+redis
+google-generativeai
+python-docx
+PyMuPDF
+Pillow
+psycopg2-binary
+pytz

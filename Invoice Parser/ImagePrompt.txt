@@ -1,0 +1,45 @@
+### Input Invoice Data (Encoded Image - Base64):
+{invoiceDATA}
+
+### Context:
+- The provided invoice data is encoded as a Base64 string representing an image of the invoice.
+- This image needs to be decoded to extract the text content of the invoice.
+- After extracting the text, the text should be processed to parse and structure invoice details.
+- It is essential to use optical character recognition techniques if needed to extract data accurately.
+
+### Objective:
+Extract text from the Base64-encoded image data, and then structure all relevant details from the resulting invoice text into a dynamic JSON format. Ensure accuracy, completeness, and support for multilingual invoices.
+
+### Requirements:
+1. **Image Data Handling:**
+   - Decode the Base64-encoded image data to obtain the raw image.
+   - Use OCR techniques to extract the text content from the image.
+   - If OCR accuracy is low, try to improve it through image preprocessing techniques.
+   - Handle potential errors during the decoding or OCR process gracefully.
+2. **Invoice Text Analysis:**
+    - Once the text is extracted, follow the invoice data parsing requirements as defined below.
+3. **Extract Key Invoice Sections:**
+   - Seller Details: Company name, address, tax IDs (e.g., GSTIN, PAN, VAT).
+   - Buyer Details: Customer name, address, tax IDs.
+   - Invoice Metadata: Invoice number, date, payment terms, due date.
+   - Transport Information: Transporter name, vehicle number, tracking details.
+   - Payment Details: Bank name, account number, SWIFT code, IBAN, UPI ID.
+   - Additional Metadata: Any extra details present in the invoice.
+4. **Tabular Data Extraction:**
+   - Extract all itemized rows, ensuring dynamic column headers based on the invoice format.
+   - Include every row, even if some values are missing or zero.
+5. **Missing Sections:**
+   - If a section is unavailable, return "Not Available" instead of skipping it.
+6. **Inference:**
+   - Infer missing values from context when possible.
+   - Extract the total amount directly without recalculation.
+7. **Multi-Language Support:**
+   - Process invoices in any language and generate the output in the same language.
+8. **Dynamic JSON Structure:**
+   - Dynamically create fields for any additional details present in the invoice.
+   - Avoid using a fixed/predefined JSON format.
+9. **JSON Formatting:**
+   - Ensure the output is structured, formatted correctly, and error-free for seamless parsing.
+
+### Expected Output:
+A fully structured JSON response containing all extracted details from the invoice image, formatted dynamically, supporting multiple languages, and reflecting any necessary information extracted through OCR.
